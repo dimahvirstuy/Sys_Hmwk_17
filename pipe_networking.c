@@ -1,4 +1,5 @@
 #include "pipe_networking.h"
+#define WKP "jiggalo";
 
 /*=========================
   server_setup
@@ -12,7 +13,15 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 int server_setup() {
-  return -1;
+  mkfifo(WKP, 6660);
+  fd = open(WKP, O_RDONLY);
+  int from_client;
+  read(fd, from_client, sizeof(from_client));
+  int priv_pipe = server_connect(from_client);
+  if(!fork()) {
+    execvp("rm", "rm", "-f", WKP);
+  }
+  return fd;
 }
 
 
